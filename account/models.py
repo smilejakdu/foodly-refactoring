@@ -2,10 +2,10 @@ from django.db import models
 
 
 class User(models.Model):
-    email      = models.EmailField(max_length=200, unique=True, verbose_name='email', null=True)
-    password   = models.CharField(max_length=200, null=True)
-    first_name = models.CharField(max_length=45, null=True)
-    last_name  = models.CharField(max_length=45, null=True)
+    email      = models.EmailField(max_length=250, unique=True, verbose_name='email')
+    password   = models.CharField(max_length=500)
+    first_name = models.CharField(max_length=45)
+    last_name  = models.CharField(max_length=45)
     create_at  = models.DateTimeField(auto_now_add=True, null=True)
     update_at  = models.DateTimeField(auto_now=True, null=True)
     is_delete  = models.BooleanField(default=False)
@@ -25,15 +25,15 @@ class User_address(models.Model):
 
 
 class Address(models.Model):
-    first_name = models.CharField(max_length=45, null=True)
-    last_name  = models.CharField(max_length=45, null=True)
+    first_name = models.CharField(max_length=45)
+    last_name  = models.CharField(max_length=45)
     company    = models.CharField(max_length=200, null=True)
-    address1   = models.CharField(max_length=200, null=True)
-    address2   = models.CharField(max_length=200, null=True)
-    city       = models.CharField(max_length=100, null=True)
+    address1   = models.CharField(max_length=250)
+    address2   = models.CharField(max_length=250, null=True)
+    city       = models.CharField(max_length=100)
     country    = models.CharField(max_length=100, null=True)
     state      = models.CharField(max_length=100, null=True)
-    phone      = models.CharField(max_length=45, null=True)
+    phone      = models.CharField(max_length=45)
     is_default = models.BooleanField(False, null=True)
     postcode   = models.ForeignKey('Postcode', on_delete=models.CASCADE, null=True)
 

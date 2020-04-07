@@ -14,58 +14,23 @@ from django.core.exceptions     import ValidationError
 from foodly_project.my_settings import SECRET_KEY,   ALGORITHM
 from .utils                     import login_check
 
-
-# Create your views here.
-def find_special(name):
-    return bool(re.search('[-=+,#/\?:^$.@*\"※~&%ㆍ!』\\‘|\(\)\[\]\<\>`\'…》]', name))
-
-
-def email_check(email):
-    return bool(re.match('^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$', email))
-
-
-def find_space(string):
-    return bool(re.search(' ', string))
-
-
 class SignUpView(View):
-
-    VALIDATION_RULES = {
-        "email" : {
-            "validator" : email_check,
-            "message" : "invalid email"
-        },
-        "first_name" : {
-            "validator" : find_special,
-            "message" : "invalid first name"
-        },
-        "last_name" : {
-            "validator" : find_special,
-            "message" : "invalid last name"
-        },
-        "password" : {
-            "validator" : find_space,
-            "message" : "invalid password"
-        },
-    }
 
     def post(self, request):
         data = json.loads(request.body)
 
         try:
-            for field in data:
-                rule =VALIDATION_RULES[field]
-                if rule['validator'](data[field]):
-                    return JsonResponse({'error' : rule['message']} , status=400)
+
+            validate_email(data['email'])
 
             if len(data["password"]) < 6:
                 return JsonResponse({"message": "비밀번호 짦음"}, status=400)
 
             User(
-                email=data['email'],
-                first_name=data['first_name'],
-                last_name=data['last_name'],
-                password=bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+                email      = data['email'],
+                first_name = data['first_name'],
+                last_name  = data['last_name'],
+                password   = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
             ).save()
 
             return HttpResponse(status=200)
@@ -86,8 +51,9 @@ class SignInView(View):
                 user = User.objects.get(email=data['email'])
 
                 if bcrypt.checkpw(data['password'].encode(), user.password.encode('utf-8')):
-                    token = jwt.encode({'email': data['email']}, SECRET_KEY['secret'],
-                                       algorithm=ALGORITHM).decode()
+                    token = jwt.encode({'email': data['email']},
+                                           SECRET_KEY['secret'],
+                                           algorithm=ALGORITHM).decode()
                     return JsonResponse({'access': token}, status=200, content_type="application/json")
 
                 return HttpResponse(status=401)
@@ -132,6 +98,7 @@ class KakaoSignInView(View):
 
         except KeyError:
             return HttpResponse(status=400)
+
         except jwt.DecodeError:
             return HttpResponse(status=401)
 
