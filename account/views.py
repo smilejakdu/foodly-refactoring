@@ -4,7 +4,7 @@ import re
 import bcrypt
 import requests
 
-from .models                    import User,         Address , User_address
+from .models                    import User, Address , User_address
 
 from django.views               import View
 from django.http                import HttpResponse, JsonResponse
