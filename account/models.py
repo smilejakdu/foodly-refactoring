@@ -15,7 +15,6 @@ class User(models.Model):
     class Meta:
         db_table = 'users'
 
-
 class User_address(models.Model):
     address = models.ForeignKey('Address', on_delete=models.CASCADE, null=True)
     user    = models.ForeignKey('User', on_delete=models.CASCADE, null=True)
