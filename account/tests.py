@@ -73,7 +73,10 @@ class SignUp(TestCase):
             "last_name"  : "jakdu"
         }
 
-        response = client.post("/account/signup" , json.dumps(user) , content_type="application/json")
+        response = client.post("/account/signup" ,
+                               json.dumps(user) ,
+                               content_type="application/json")
+
         self.assertEqual(response.status_code , 400)
         self.assertEqual(response.json() , {"message" :"EMPTY_FIRSTNAME"})
 
@@ -87,8 +90,74 @@ class SignUp(TestCase):
             "last_name"  : ""
         }
 
-        response = client.post("/account/signup" , json.dumps(user) , content_type="application/json")
+        response = client.post("/account/signup" ,
+                               json.dumps(user) ,
+                               content_type="application/json")
+
         self.assertEqual(response.status_code , 400)
         self.assertEqual(response.json() , {"message" : "EMPTY_LASTNAME"})
 
 
+class SignIn(TestCase):
+    def setUp(self):
+        password = bcrypt.hashpw("sory123123".encode("UTF-8") , bcrypt.gensalt()).decode("UTF-8")
+
+        User.objects.create(
+            email      = "sory@gmail.com",
+            password   = password,
+            first_name = "jakdu",
+            last_name  = "jakdu"
+        )
+
+    def tearDown(self):
+        User.objects.all().delete()
+
+    def test_signin_success(self):
+        user = {
+            "email"    : "sory@gmail.com",
+            "password" : "sory123123",
+        }
+
+        client = Client()
+
+        response = client.post("/account/signin" ,
+                               json.dumps(user) ,
+                               content_type="application/json")
+
+        token = jwt.encode({"email" : user["email"]} ,
+                           SECRET_KEY["secret"] ,
+                           algorithm=ALGORITHM).decode("UTF-8")
+
+        self.assertEqual(response.status_code , 200)
+        self.assertEqual(response.json() , {"access_token" : token})
+
+    def test_signin_doesnot_exist_email(self):
+        user  ={
+            "email"    : "sory_jakdu@gmail.com",
+            "password" : "jakdujakdu123"
+        }
+
+        client = Client()
+
+        response = client.post("/account/signin" ,
+                               json.dumps(user) ,
+                               content_type="application/json")
+
+        self.assertEqual(response.status_code , 400)
+        self.assertEqual(response.json() , {"message" : "NOTFOUND_EMAIL"})
+
+    def test_signin_invalid_key(self):
+
+        user = {
+            "nick_name" : "smile_jakdu" ,
+            "password " : "123123"
+        }
+
+        client = Client()
+
+        response = client.post("/account/signin" ,
+                               json.dumps(user) ,
+                               content_type="application/json")
+
+        self.assertEqual(response.status_code , 400)
+        self.assertEqual(response.json() , {"message" : "INVALID_KEY"})

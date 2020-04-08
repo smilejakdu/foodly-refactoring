@@ -135,4 +135,4 @@ class AddressView(View):
             return HttpResponse(status=400)
         except TypeError:
             return HttpResponse(status=400)
-        
+
