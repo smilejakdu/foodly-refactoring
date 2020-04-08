@@ -5,35 +5,39 @@ import bcrypt
 import requests
 
 from django.test                import TestCase , Client
-from .models                    import User, Address , User_address
+from .utils                     import login_check
+from .models                    import User , User_address , Address
 
-from django.views               import View
 from django.http                import HttpResponse, JsonResponse
 from django.core.validators     import validate_email
 from django.core.exceptions     import ValidationError
 
-from foodly_project.my_settings import SECRET_KEY,   ALGORITHM
-from .utils                     import login_check
+from foodly_project.my_settings import SECRET_KEY, ALGORITHM
 
 class SignUp(TestCase):
     def setUp(self):
         User.objects.create(
-            email      = "jakdu@gmail.com",
-            password   = "jakdu123123",
+            email      = "jakdu123@gmail.com",
             first_name = "jakdu",
-            last_name  = "jakdu"
+            last_name  = "jakdu",
+            password   = "jakdu123123"
         )
 
-    def tearDown(self):
+    def test_signup_success(self):
         client = Client()
 
         user = {
-            "email"    : "jakdu123@gmail.com",
-            "password" : "jakdu123123"
+            "email"      : "jakdu@gmail.com",
+            "password"   : "jakdu123123",
+            "first_name" : "jakdu",
+            "last_name"  : "jakdu"
         }
 
-        response = client.post("/account/signup" , json.dumps(user) , content_type = "application/json")
-        self.assertEqual(response.status_code , 200)
+        response = client.post("/account/signup",
+                               json.dumps(user),
+                               content_type = "application/json")
+
+        self.assertEqual(response.status_code, 200)
 
     def test_signup_exists_email(self):
         client = Client()
@@ -47,7 +51,6 @@ class SignUp(TestCase):
 
         response = client.post("/account/signup" , json.dumps(user) , content_type = "application/json")
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.json(), {"message" : "EXISTS_EMAIL"})
 
     def test_signup_invalid_email(self):
         client = Client()
@@ -61,42 +64,6 @@ class SignUp(TestCase):
 
         response = client.post("/account/signup" , json.dumps(user) , content_type = "application/json")
         self.assertEqual(response.status_code , 400)
-        self.assertEqual(response.json() , {"message" : "INVALID_EMAIL"})
-
-    def test_signup_empty_first_name(self):
-        client = Client()
-
-        user = {
-            "email"      : "jakdu157@gmail.com",
-            "password"   : "123124dfasf" ,
-            "first_name" : "",
-            "last_name"  : "jakdu"
-        }
-
-        response = client.post("/account/signup" ,
-                               json.dumps(user) ,
-                               content_type="application/json")
-
-        self.assertEqual(response.status_code , 400)
-        self.assertEqual(response.json() , {"message" :"EMPTY_FIRSTNAME"})
-
-    def test_signup_empty_last_name(self):
-        client = Client()
-
-        user = {
-            "email"      : "sory1@gmail.com",
-            "password"   : "123123123ddsd",
-            "first_name" : "jakdu",
-            "last_name"  : ""
-        }
-
-        response = client.post("/account/signup" ,
-                               json.dumps(user) ,
-                               content_type="application/json")
-
-        self.assertEqual(response.status_code , 400)
-        self.assertEqual(response.json() , {"message" : "EMPTY_LASTNAME"})
-
 
 class SignIn(TestCase):
     def setUp(self):
@@ -129,7 +96,7 @@ class SignIn(TestCase):
                            algorithm=ALGORITHM).decode("UTF-8")
 
         self.assertEqual(response.status_code , 200)
-        self.assertEqual(response.json() , {"access_token" : token})
+        self.assertEqual(response.json(), {"access" : token})
 
     def test_signin_doesnot_exist_email(self):
         user  ={
@@ -144,7 +111,6 @@ class SignIn(TestCase):
                                content_type="application/json")
 
         self.assertEqual(response.status_code , 400)
-        self.assertEqual(response.json() , {"message" : "NOTFOUND_EMAIL"})
 
     def test_signin_invalid_key(self):
 
@@ -160,4 +126,4 @@ class SignIn(TestCase):
                                content_type="application/json")
 
         self.assertEqual(response.status_code , 400)
-        self.assertEqual(response.json() , {"message" : "INVALID_KEY"})
+        self.assertEqual(response.json() , {"message" : "INVALID_KEYS"})

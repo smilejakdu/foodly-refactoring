@@ -20,7 +20,6 @@ class SignUpView(View):
         data = json.loads(request.body)
 
         try:
-
             validate_email(data['email'])
 
             if len(data["password"]) < 6:
@@ -40,7 +39,6 @@ class SignUpView(View):
 
         except KeyError:
             return HttpResponse(status=400)
-
 
 class SignInView(View):
     def post(self, request):
@@ -133,6 +131,7 @@ class AddressView(View):
 
         except KeyError:
             return HttpResponse(status=400)
+
         except TypeError:
             return HttpResponse(status=400)
 
