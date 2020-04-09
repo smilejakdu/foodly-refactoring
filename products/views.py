@@ -1,9 +1,9 @@
 import jwt, bcrypt, json
 
-from django.db import IntegrityError
-from django.db.models import Count, Q
-from django.views import View
-from django.http import HttpResponse, JsonResponse
+from  django.db                 import IntegrityError
+from  django.db.models          import Count, Q
+from  django.views              import View
+from  django.http               import HttpResponse, JsonResponse
 
 from foodly_project.my_settings import SECRET_KEY
 from .models import (
@@ -18,19 +18,24 @@ from .models import (
 
 class ProductView(View):
     def get(self, request):
-        sort_by = request.GET.get('sort_by', 'id')
-        offset = int(request.GET.get('offset', 0))
-        limit = int(request.GET.get('limit', 12))
-        product_info = Product.objects.select_related('harvest_year', 'measure').order_by(sort_by).values(
-            'name',
-            'id',
-            'price',
-            'small_image',
-            'harvest_year__year',
-            'measure_id__measure',
-            'is_on_sale',
-            'is_in_stock',
-        )[offset:offset + limit]
+        sort_by      = request.GET.get('sort_by', 'id')
+        offset       = int(request.GET.get('offset', 0))
+        limit        = int(request.GET.get('limit', 12))
+        product_info = (
+            Product
+            .objects
+            .select_related('harvest_year', 'measure')
+            .order_by(sort_by)
+            .values(
+                'name',
+                'id',
+                'price',
+                'small_image',
+                'harvest_year__year',
+                'measure_id__measure',
+                'is_on_sale',
+                'is_in_stock',
+            )[offset:offset + limit])
 
         return JsonResponse({'data': list(product_info)}, status=200)
 
@@ -43,56 +48,65 @@ class ProductDetailView(View):
                 .prefetch_related('similar_product')
                 .get(id=product_id)
         )
+
         product_info = {
-            'id': data_caching.id,
-            'name': data_caching.name,
-            'harvest_year_id__year': data_caching.harvest_year.year,
-            'measure_id__measure': data_caching.measure.measure,
-            'is_in_stock': data_caching.is_in_stock,
-            'description': data_caching.description,
-            'price': data_caching.price,
-            'small_image': data_caching.small_image,
-            'big_image1': data_caching.big_image1,
-            'big_image2': data_caching.big_image2,
-            'big_image3': data_caching.big_image3,
-            'energy': data_caching.energy,
-            'carbonydrate': data_caching.carbonydrate,
-            'protein': data_caching.protein,
-            'fat': data_caching.fat,
-            'mineral': data_caching.mineral,
-            'vitamin': data_caching.vitamin,
-            'similar_product': list(data_caching.similar_product.values('name', 'harvest_year_id__year', 'is_in_stock',
-                                                                        'measure_id__measure'))
-        }
+            'id'                    : data_caching.id,
+            'name'                  : data_caching.name,
+            'harvest_year_id__year' : data_caching.harvest_year.year,
+            'measure_id__measure'   : data_caching.measure.measure,
+            'is_in_stock'           : data_caching.is_in_stock,
+            'description'           : data_caching.description,
+            'price'                 : data_caching.price,
+            'small_image'           : data_caching.small_image,
+            'big_image1'            : data_caching.big_image1,
+            'big_image2'            : data_caching.big_image2,
+            'big_image3'            : data_caching.big_image3,
+            'energy'                : data_caching.energy,
+            'carbonydrate'          : data_caching.carbonydrate,
+            'protein'               : data_caching.protein,
+            'fat'                   : data_caching.fat,
+            'mineral'               : data_caching.mineral,
+            'vitamin'               : data_caching.vitamin,
+            'similar_product'       : list(data_caching.
+                                            similar_product.
+                                            values(
+                                            'name',
+                                            'harvest_year_id__year',
+                                            'is_in_stock',
+                                            'measure_id__measure'))}
 
         return JsonResponse({'data': product_info}, status=200)
 
 
 class ProductCategoryView(View):
     def get(self, request, category_name):
-        sort_by = request.GET.get('sort_by', 'id')
-        category_filter = Product.objects.prefetch_related('harvest_year', 'measure').filter(
-            category__name=category_name)
-        offset = int(request.GET.get('offset', 0))
-        limit = int(request.GET.get('limit', 12))
-        categorized_page = category_filter.order_by(sort_by).values(
-            'id',
-            'name',
-            'price',
-            'small_image',
-            'harvest_year__year',
-            'measure_id__measure',
-            'is_on_sale',
-            'is_in_stock',
-        )[offset:offset + limit]
+        sort_by          = request.GET.get('sort_by', 'id')
+        category_filter  = Product.objects.prefetch_related('harvest_year', 'measure').filter(
+        category__name   = category_name)
+
+        offset           = int(request.GET.get('offset', 0))
+        limit            = int(request.GET.get('limit', 12))
+
+        categorized_page = (category_filter
+                            .order_by(sort_by)
+                            .values(
+                                'id',
+                                'name',
+                                'price',
+                                'small_image',
+                                'harvest_year__year',
+                                'measure_id__measure',
+                                'is_on_sale',
+                                'is_in_stock',
+                            )[offset:offset + limit])
 
         return JsonResponse({'data': list(categorized_page)}, status=200)
 
 
 class RecipeView(View):
     def get(self, request):
-        offset = int(request.GET.get('offset', 0))
-        limit = int(request.GET.get('limit', 12))
+        offset      = int(request.GET.get('offset', 0))
+        limit       = int(request.GET.get('limit', 12))
         recipe_info = Recipe.objects.order_by('id').values(
             'id',
             'title',
@@ -114,8 +128,7 @@ class RecipeDetailView(View):
             'author',
             'description',
             'ingredient',
-            'direction'
-        )
+            'direction')
 
         return JsonResponse({'data': list(recipe_detail)}, status=200)
 
@@ -127,19 +140,25 @@ class BundleView(View):
             list(data.product_set.values('measure_id__measure', 'name')
                  .annotate(Count('name'))) for data in bundles
         ]
+
         bundle_info = [{
-            'title': bundle.title,
-            'price': bundle.price,
-            'is_in_promomtion': bundle.is_in_promotion,
-            'content_info': content_info}
-            for bundle in bundles]
+                'title'            : bundle.title,
+                'price'            : bundle.price,
+                'is_in_promomtion' : bundle.is_in_promotion,
+                'content_info'     : content_info}
+                for bundle in bundles]
 
         return JsonResponse({'data': bundle_info}, status=200)
 
 
 class RecommendationView(View):
     def get(self, request):
-        recipe = Recipe.objects.prefetch_related('product_set').get(is_main=True)
+
+        recipe = (Recipe
+                  .objects
+                  .prefetch_related('product_set')
+                  .get(is_main=True))
+
         recommended_recipe = {
             'title': recipe.title,
             'thumbnail_url': recipe.thumbnail_url,
@@ -167,19 +186,19 @@ class SearchView(View):
 
             data = {
                 'product': [{
-                    'id': product.id,
-                    'name': product.name,
-                    'price': product.price,
-                    'description': product.description,
-                    'small_image': product.small_image,
-                    'harvest_year': product.harvest_year.year,
+                    'id'           : product.id,
+                    'name'         : product.name,
+                    'price'        : product.price,
+                    'description'  : product.description,
+                    'small_image'  : product.small_image,
+                    'harvest_year' : product.harvest_year.year,
                 } for product in product_data],
                 'recipe': [{
-                    'id': recipe.id,
-                    'title': recipe.title,
-                    'ingredient': recipe.ingredient,
-                    'description': recipe.description,
-                    'thumbnail_url': recipe.thumbnail_url,
+                    'id'            : recipe.id,
+                    'title'         : recipe.title,
+                    'ingredient'    : recipe.ingredient,
+                    'description'   : recipe.description,
+                    'thumbnail_url' : recipe.thumbnail_url,
                 } for recipe in recipe_data]
             }
 
