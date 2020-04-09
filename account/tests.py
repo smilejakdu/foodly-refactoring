@@ -127,3 +127,16 @@ class SignIn(TestCase):
 
         self.assertEqual(response.status_code , 400)
         self.assertEqual(response.json() , {"message" : "INVALID_KEYS"})
+
+class KakaoSigninTest(TestCase):
+    def setUp(self):
+        User.objects.create(
+            email    = "jakdu123@email.com",
+            kakao_id = "123351"
+        )
+
+    def tearDown(self):
+        User.objects.all().delete()
+
+    @patch('account.views.requests')
+    def test_kakao_login_true(self , mocekd_request):
