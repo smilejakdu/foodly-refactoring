@@ -1,6 +1,9 @@
-import requests, csv, re
-from bs4 import BeautifulSoup
+import requests
+import csv
+import re
 import pandas as pd
+
+from bs4 import BeautifulSoup
 
 # empty list set to add new column
 mCols = []

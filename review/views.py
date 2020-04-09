@@ -2,27 +2,28 @@ import json
 from .models import Review
 
 from products.models import Product
-from account.models import User
-from django.views import View
-from django.http import HttpResponse, JsonResponse
-from account.utils import login_check
+from account.models  import User
+from account.utils   import login_check
 
+from django.views    import View
+from django.http     import HttpResponse, JsonResponse
 
 class ReviewView(View):
     @login_check
     def post(self, request, product_name):
-        data = json.loads(request.body)
+        data   = json.loads(request.body)
         review = data.get('review', None)
 
         try:
             if Product.objects.filter(name=product_name).exists():
                 if review:
                     Review(
-                        user_id=request.user.id,
-                        review=review,
-                        product_id=Product.objects.get(name=product_name).id
+                        user_id    = request.user.id,
+                        review     = review,
+                        product_id = Product.objects.get(name=product_name).id
                     ).save()
-                    return JsonResponse({'message': "SUCCESS"}, status=200)
+
+                    return HttpResponse(status=200)
 
         except User.DoesNotExist:
             return HttpResponse(status=400)
