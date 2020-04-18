@@ -1,5 +1,5 @@
 import json
-from .models import Review
+from .models         import Review
 
 from products.models import Product
 from account.models  import User
@@ -37,12 +37,14 @@ class ReviewView(View):
 class ReviewDetailView(View):
     @login_check
     def post(self, request, product_name, review_id):
-        data = json.loads(request.body)
-        review = data.get('review', None)
+        data       = json.loads(request.body)
+        review     = data.get('review', None)
         product_id = Product.objects.get(name=product_name).id
 
         try:
-            review_data = Review.objects.get(id=review_id, product_id=product_id, user_id=request.user.id)
+            review_data = Review.objects.get(id         = review_id,
+                                             product_id = product_id,
+                                             user_id    = request.user.id)
             if review:
                 review_data.review = review
                 review_data.save()
@@ -59,7 +61,9 @@ class ReviewDetailView(View):
         product_id = Product.objects.get(name=product_name).id
 
         try:
-            review_data = Review.objects.get(id=review_id, user_id=request.user.id, product_id=product_id)
+            review_data = Review.objects.get(id         = review_id,
+                                             user_id    = request.user.id,
+                                             product_id = product_id)
             review_data.delete()
             return JsonResponse({"message": "SECCESS"}, status=200)
 

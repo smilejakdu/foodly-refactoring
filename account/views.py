@@ -14,7 +14,7 @@ from django.core.exceptions     import ValidationError
 from foodly_project.my_settings import SECRET_KEY,   ALGORITHM
 from .utils                     import login_check
 
-class SignUpView(View):
+class SignInView(View):
 
     def post(self, request):
         data = json.loads(request.body)
@@ -40,11 +40,13 @@ class SignUpView(View):
         except KeyError:
             return HttpResponse(status=400)
 
-class SignInView(View):
+class SignUpView(View):
     def post(self, request):
         data = json.loads(request.body)
 
         try:
+            validate_email(data['email'])
+
             if User.objects.filter(email=data['email']).exists():
                 user = User.objects.get(email=data['email'])
 
@@ -52,6 +54,7 @@ class SignInView(View):
                     token = jwt.encode({'email': data['email']},
                                            SECRET_KEY['secret'],
                                            algorithm=ALGORITHM).decode()
+
                     return JsonResponse({'access': token}, status=200, content_type="application/json")
 
                 return HttpResponse(status=401)
@@ -73,22 +76,25 @@ class KakaoSignInView(View):
             return HttpResponse(status=400)
 
         try:
-            url = 'https://kapi.kakao.com/v2/user/me'
-            header = {"Authorization": f"Bearer {token}"}
-            req = requests.get(url, headers=header)
-            req_json = req.json()
+            url           = 'https://kapi.kakao.com/v2/user/me'
+            header        = {"Authorization": f"Bearer {token}"}
+            req           = requests.get(url, headers=header)
+            req_json      = req.json()
 
-            kakao_id = req_json.get('id', None)
-            kakao_account = req_json.get('kakao_account', None)
-            kakao_email = kakao_account.get('email', None)
+            kakao_id      = req_json.get('id'            , None)
+            kakao_account = req_json.get('kakao_account' , None)
+            kakao_email   = kakao_account.get('email'    , None)
 
             if User.objects.filter(email=kakao_email).exists():
-                token = jwt.encode({"email": kakao_email}, SECRET_KEY['secret'], algorithm=ALGORITHM).decode("utf-8")
+                token = jwt.encode({"email": kakao_email},
+                                       SECRET_KEY['secret'],
+                                       algorithm=ALGORITHM).decode("utf-8")
+
                 return JsonResponse({"token": token}, status=200)
 
             User(
-                email=kakao_email,
-                kakao_id=kakao_id,
+                email    = kakao_email,
+                kakao_id = kakao_id,
             ).save()
 
             token = jwt.encode({"email": kakao_email}, SECRET_KEY['secret'], algorithm=ALGORITHM).decode("utf-8")
@@ -108,7 +114,7 @@ class AddressView(View):
 
         try:
             if address_data['first_name'] is None or address_data['last_name'] is None or address_data['company'] is None or \
-                    address_data['address1'] is None or address_data['city'] is None or address_data['country'] is None or address_data['state'] is None:
+               address_data['address1'] is None or address_data['city'] is None or address_data['country'] is None or address_data['state'] is None:
                 return HttpResponse(status=400)
 
             Address(
@@ -124,7 +130,7 @@ class AddressView(View):
 
             User_address(
                 address_id = address_id,
-                user_id = request.user.id
+                user_id    = request.user.id
             ).save()
 
             return JsonResponse({'message':'success'} , status=200)
@@ -134,4 +140,3 @@ class AddressView(View):
 
         except TypeError:
             return HttpResponse(status=400)
-

@@ -13,8 +13,8 @@ class WishListView(View):
     @login_check
     def post(self, request):
         try:
-            data = json.loads(request.body)
-            product = Product.objects.get(id=data['id'])
+            data     = json.loads(request.body)
+            product  = Product.objects.get(id=data['id'])
             wishlist = WishList.objects.filter(user=request.user, product_id=data['id'])
 
             if wishlist.exists():
@@ -48,7 +48,7 @@ class WishListView(View):
 
     @login_check
     def delete(self, request):
-        data = json.loads(request.body)
+        data     = json.loads(request.body)
         wishlist = WishList.objects.filter(user=request.user, product_id=data['id'])
 
         if wishlist.exists():
@@ -67,7 +67,7 @@ class CartView(View):
 
             if not product.exists():
                 return JsonResponse({'message': 'OUT_OF_STOCK'}, status=200)
- 
+
             cart    = Cart.objects.filter(user=request.user, product_id=data['id'])
             order   = Order.objects.filter(user=request.user, is_closed=False)
 

@@ -2,7 +2,6 @@ import jwt
 
 from .models                    import User
 from foodly_project.my_settings import ALGORITHM, SECRET_KEY
-
 from django.http                import JsonResponse
 
 
