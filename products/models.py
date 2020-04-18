@@ -25,7 +25,7 @@ class Product(models.Model):
     similar_product = models.ManyToManyField('self', through = 'SimilarProduct', symmetrical = False)
     bundle          = models.ManyToManyField('Bundle', through = 'ProductBundle')
     category        = models.ManyToManyField('Category', through = 'ProductCategory')
-    
+
     class Meta:
         db_table = 'products'
 
@@ -124,7 +124,7 @@ class Recommendation(models.Model):
 class RecipeRecommendation(models.Model):
     recipe         = models.ForeignKey('Recipe', on_delete = models.CASCADE, null = True)
     recommendation = models.ForeignKey('Recommendation', on_delete = models.CASCADE, null = True)
-    
+
     class Meta:
         db_table = 'recipe_recommendations'
 
