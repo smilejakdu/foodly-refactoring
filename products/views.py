@@ -98,20 +98,22 @@ class ProductCategoryView(View):
                             )[offset:offset + limit])
 
         return JsonResponse({'data': list(categorized_page)}, status=200)
-
+# 여기서 부터 다시 해야함 
 class RecipeView(View):
     def get(self, request):
         try:
             offset      = int(request.GET.get('offset', 0))
             limit       = int(request.GET.get('limit', 12))
-            recipe_info = Recipe.objects.order_by('id').values(
-                'id',
-                'title',
-                'description',
-                'company',
-                'thumbnail_url',
-                'posting_date'
-            )[offset:offset + limit]
+            recipe_info = (Recipe
+                           .objects
+                           .order_by('id')
+                           .values('id',
+                                   'title',
+                                   'description',
+                                   'company',
+                                   'thumbnail_url',
+                                   'posting_date'
+                                  )[offset:offset + limit])
 
             return JsonResponse({'data': list(recipe_info)}, status=200)
 
@@ -122,23 +124,26 @@ class RecipeView(View):
             return HttpResponse(status=400)
 
         except Exception as e:
-            print(e)
             return HttpResponse(status=400)
 
 class RecipeDetailView(View):
     def get(self, request, recipe_id):
-        recipe_detail = (Recipe
-                         .objects
-                         .filter(id = recipe_id)
-                         .values('title',
-                                 'posting_date',
-                                 'company',
-                                 'author',
-                                 'description',
-                                 'ingredient',
-                                 'direction'))
+        try :
+            recipe_detail = (Recipe
+                             .objects
+                             .filter(id = recipe_id)
+                             .values('title',
+                                     'posting_date',
+                                     'company',
+                                     'author',
+                                     'description',
+                                     'ingredient',
+                                     'direction'))
 
-        return JsonResponse({'data': list(recipe_detail)}, status=200)
+            return JsonResponse({'data': list(recipe_detail)}, status=200)
+
+        except ValueError :
+            return HttpResponse(status=400)
 
 class BundleView(View):
     def get(self, request):

@@ -31,13 +31,13 @@ class Product(models.Model):
 
 class HarvestYear(models.Model):
     year = models.CharField(max_length = 45)
-    
+
     class Meta:
         db_table = 'harvest_years'
 
 class Measure(models.Model):
     measure = models.CharField(max_length = 10)
-    
+
     class Meta:
         db_table = 'measures'
 
@@ -50,7 +50,7 @@ class Season(models.Model):
 class SimilarProduct(models.Model):
     from_product = models.ForeignKey('Product', on_delete = models.SET_NULL, null = True, related_name = 'from_product')
     to_product   = models.ForeignKey('Product', on_delete = models.SET_NULL, null = True, related_name = 'to_product')
-    
+
     class Meta:
         unique_together = ('from_product', 'to_product')
         db_table        = 'similar_products'
