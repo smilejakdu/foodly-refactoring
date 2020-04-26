@@ -14,7 +14,7 @@ from django.core.exceptions     import ValidationError
 from foodly_project.my_settings import SECRET_KEY,   ALGORITHM
 from .utils                     import login_check
 
-class SignInView(View):
+class SignUnView(View):
 
     def post(self, request):
         data = json.loads(request.body)
@@ -40,7 +40,7 @@ class SignInView(View):
         except KeyError:
             return HttpResponse(status=400)
 
-class SignUpView(View):
+class SignIpView(View):
     def post(self, request):
         data = json.loads(request.body)
 
@@ -66,7 +66,6 @@ class SignUpView(View):
 
         except User.DoesNotExist:
             return JsonResponse({"message": "INVALID_USER"}, status=400)
-
 
 class KakaoSignInView(View):
     def get(self, request):
