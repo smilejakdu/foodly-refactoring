@@ -189,29 +189,33 @@ class SearchView(View):
 
     def get(self, request):
         query = request.GET.get('keyword', None)
+        try :
 
-        if len(query) > 2:
-            recipe_data  = Recipe.objects.filter(Q(title__icontains=query)).all()
-            product_data = Product.objects.filter(Q(name__icontains=query)).select_related('harvest_year').all()
+            if len(query) > 2:
+                recipe_data  = Recipe.objects.filter(Q(title__icontains=query)).all()
+                product_data = Product.objects.filter(Q(name__icontains=query)).select_related('harvest_year').all()
 
-            data = {
-                'product': [{
-                    'id'           : product.id,
-                    'name'         : product.name,
-                    'price'        : product.price,
-                    'description'  : product.description,
-                    'small_image'  : product.small_image,
-                    'harvest_year' : product.harvest_year.year,
-                } for product in product_data],
-                'recipe': [{
-                    'id'            : recipe.id,
-                    'title'         : recipe.title,
-                    'ingredient'    : recipe.ingredient,
-                    'description'   : recipe.description,
-                    'thumbnail_url' : recipe.thumbnail_url,
-                } for recipe in recipe_data]
-            }
+                data = {
+                    'product': [{
+                        'id'           : product.id,
+                        'name'         : product.name,
+                        'price'        : product.price,
+                        'description'  : product.description,
+                        'small_image'  : product.small_image,
+                        'harvest_year' : product.harvest_year.year,
+                    } for product in product_data],
+                    'recipe': [{
+                        'id'            : recipe.id,
+                        'title'         : recipe.title,
+                        'ingredient'    : recipe.ingredient,
+                        'description'   : recipe.description,
+                        'thumbnail_url' : recipe.thumbnail_url,
+                    } for recipe in recipe_data]
+                }
 
-            return JsonResponse({'data': data}, status=200)
+                return JsonResponse({'data': data}, status=200)
+        except ValueError:
+            return JsonResponse({"error":"invalid error"},status=400)
 
-        return JsonResponse({"error": "invalid keyword"}, status=400)
+        except Exception as e :
+            return JsonResponse({"error": e}, status=400)

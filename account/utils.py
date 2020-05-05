@@ -10,7 +10,10 @@ def login_check(func):
 
         try:
             auth_token   = request.headers.get('Authorization', None)
-            payload      = jwt.decode(auth_token, SECRET_KEY['secret'], algorithms=ALGORITHM)
+            payload      = jwt.decode(auth_token,
+                                      SECRET_KEY['secret'],
+                                      algorithms=ALGORITHM)
+
             user         = User.objects.get(email=payload["email"])
             request.user = user
 

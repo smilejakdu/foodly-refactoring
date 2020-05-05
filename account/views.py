@@ -4,7 +4,6 @@ import re
 import bcrypt
 import requests
 
-from .models                    import User, Address , User_address
 
 from django.views               import View
 from django.http                import HttpResponse, JsonResponse
@@ -13,8 +12,12 @@ from django.core.exceptions     import ValidationError
 
 from foodly_project.my_settings import SECRET_KEY,   ALGORITHM
 from .utils                     import login_check
+from .models                    import (User,
+                                        Address ,
+                                        User_address)
 
-class SignUnView(View):
+
+class SignUpView(View):
 
     def post(self, request):
         data = json.loads(request.body)
@@ -40,7 +43,7 @@ class SignUnView(View):
         except KeyError:
             return HttpResponse(status=400)
 
-class SignIpView(View):
+class SignInView(View):
     def post(self, request):
         data = json.loads(request.body)
 
@@ -50,7 +53,9 @@ class SignIpView(View):
             if User.objects.filter(email=data['email']).exists():
                 user = User.objects.get(email=data['email'])
 
-                if bcrypt.checkpw(data['password'].encode(), user.password.encode('utf-8')):
+                if bcrypt.checkpw(data['password'].encode('utf-8'),
+                                  user.password.encode('utf-8')):
+
                     token = jwt.encode({'email': data['email']},
                                            SECRET_KEY['secret'],
                                            algorithm=ALGORITHM).decode()
@@ -68,15 +73,15 @@ class SignIpView(View):
             return JsonResponse({"message": "INVALID_USER"}, status=400)
 
 class KakaoSignInView(View):
-    def get(self, request):
-        token = request.headers.get('Authorization', None)
+    def post(self, request):
+        access_token = request.headers.get('Authorization', None)
 
-        if token is None:
+        if access_token is None:
             return HttpResponse(status=400)
 
         try:
             url           = 'https://kapi.kakao.com/v2/user/me'
-            header        = {"Authorization": f"Bearer {token}"}
+            header        = {"Authorization": f"Bearer {access_token}"}
             req           = requests.get(url, headers=header)
             req_json      = req.json()
 
