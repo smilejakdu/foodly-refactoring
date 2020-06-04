@@ -21,7 +21,6 @@ class User_address(models.Model):
     class Meta:
         db_table = 'user_addresses'
 
-
 class Address(models.Model):
     first_name = models.CharField(max_length=45)
     last_name  = models.CharField(max_length=45)

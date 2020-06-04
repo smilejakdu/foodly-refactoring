@@ -110,7 +110,6 @@ class KakaoSignInView(View):
         except jwt.DecodeError:
             return HttpResponse(status=401)
 
-
 class AddressView(View):
     @login_check
     def post(self, request, address_id):

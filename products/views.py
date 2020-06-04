@@ -143,7 +143,14 @@ class RecipeDetailView(View):
             return JsonResponse({'data': list(recipe_detail)}, status=200)
 
         except ValueError :
-            return HttpResponse(status=400)
+            return JsonResponse({"message" : "INVALID_ERROR"},status=400)
+
+        except Recipe.DoesNotExist:
+            return JsonResponse({"message" : "DOESNOT_RECIPE"} , status=400)
+
+        except Exception as e :
+            return JsonResponse({"message" : e} , status=400)
+
 
 class BundleView(View):
     def get(self, request):
@@ -154,11 +161,11 @@ class BundleView(View):
         ]
 
         bundle_info = [{
-                'title'            : bundle.title,
-                'price'            : bundle.price,
-                'is_in_promomtion' : bundle.is_in_promotion,
-                'content_info'     : content_info}
-                for bundle in bundles]
+            'title'            : bundle.title,
+            'price'            : bundle.price,
+            'is_in_promomtion' : bundle.is_in_promotion,
+            'content_info'     : content_info}
+            for bundle in bundles]
 
         return JsonResponse({'data': bundle_info}, status=200)
 

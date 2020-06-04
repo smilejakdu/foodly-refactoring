@@ -33,6 +33,7 @@ carbonhydrates = []
 fats           = []
 proteins       = []
 
+
 # access from first page to last page
 last_page = 6
 for i in range(1,last_page):
@@ -40,9 +41,9 @@ for i in range(1,last_page):
 
     html = requests.get(url).text
     soup = BeautifulSoup(html, 'html.parser')
-    a=soup.select('div.product__visuals > a')
-    b=soup.select('div.product__visuals > a > div >img')
-    c=soup.select('div.product__info > span')
+    a = soup.select('div.product__visuals > a')
+    b = soup.select('div.product__visuals > a > div >img')
+    c = soup.select('div.product__info > span')
 
 # get product details(harvest_years, measures, is_in_stock)
     for i in range(0,len(c)):
